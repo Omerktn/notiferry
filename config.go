@@ -11,9 +11,10 @@ import (
 )
 
 type Config struct {
-	Listen        string            `yaml:"listen"`
-	DefaultTarget string            `yaml:"default_target"`
-	Targets       map[string]Target `yaml:"targets"`
+	Listen           string            `yaml:"listen"`
+	TelegramBotToken string            `yaml:"telegram_bot_token"`
+	DefaultTarget    string            `yaml:"default_target"`
+	Targets          map[string]Target `yaml:"targets"`
 }
 
 type Target struct {
@@ -51,6 +52,9 @@ func LoadConfig(path string) (Config, error) {
 func (c Config) Validate() error {
 	if strings.TrimSpace(c.Listen) == "" {
 		return errors.New("listen must not be empty")
+	}
+	if strings.TrimSpace(c.TelegramBotToken) != c.TelegramBotToken {
+		return errors.New("telegram_bot_token must not have surrounding whitespace")
 	}
 	if len(c.Targets) == 0 {
 		return errors.New("targets must contain at least one target")

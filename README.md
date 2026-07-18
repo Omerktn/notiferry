@@ -9,19 +9,18 @@ Create a bot with [BotFather](https://t.me/BotFather), add it to the destination
 ### Docker Compose
 
 Run these commands from the cloned repository root, which is the directory that
-contains `compose.yaml`. Copy the two example files, then edit the copies:
+contains `compose.yaml`. Copy the example config, then edit it:
 
 ```sh
 cp notiferry.example.yaml notiferry.yaml
-cp .env.example .env
 ${EDITOR:-vi} notiferry.yaml
-${EDITOR:-vi} .env
 ```
 
-Set the target chat IDs in `notiferry.yaml`:
+Set the bot token and target chat IDs in `notiferry.yaml`:
 
 ```yaml
 listen: :8080
+telegram_bot_token: "123456:replace-with-your-real-token"
 default_target: ops
 targets:
   ops:
@@ -31,10 +30,14 @@ targets:
     chat_id: "123456789"
 ```
 
-Set the bot token in `.env` as `NOTIFERRY_TELEGRAM_BOT_TOKEN`. Docker Compose
-reads `.env` automatically and mounts the host-side `./notiferry.yaml` inside
-the container as `/notiferry.yaml`. Always edit the host-side file beside
-`compose.yaml`, not the path inside the container.
+Docker Compose mounts the host-side `./notiferry.yaml` inside the container as
+`/notiferry.yaml`. Always edit the host-side file beside `compose.yaml`, not the
+path inside the container. The local file is ignored by Git because it contains
+credentials; keep it private.
+
+To keep the token outside YAML instead, copy `.env.example` to `.env` and set
+`NOTIFERRY_TELEGRAM_BOT_TOKEN`. The environment variable overrides the YAML
+value.
 
 From that same directory, start and inspect the service:
 
@@ -47,26 +50,30 @@ docker compose logs --tail=50 notiferry
 Send a notification, then stop the service when finished:
 
 ```sh
-curl -X POST localhost:8080/v1/notify \
+curl -X POST localhost:3333/v1/notify \
   -H 'content-type: application/json' \
   -d '{"text":"hello"}'
 docker compose down
 ```
 
-The service has no authentication; keep port 8080 bound to trusted host-local access as shown in `compose.yaml` (`127.0.0.1:8080:8080`) and do not expose it more broadly.
+The service has no authentication; keep port 3333 bound to trusted host-local
+access as shown in `compose.yaml` (`127.0.0.1:3333:8080`) and do not expose it
+more broadly.
 
-For direct Docker, export the token and run:
+For direct Docker, build the image, export the token, and run:
 
 ```sh
+docker build -t notiferry:local .
 export NOTIFERRY_TELEGRAM_BOT_TOKEN='123:secret'
-docker run --rm -p 127.0.0.1:8080:8080 \
+docker run --rm -p 127.0.0.1:3333:8080 \
   -e NOTIFERRY_TELEGRAM_BOT_TOKEN \
   -v "$PWD/notiferry.yaml:/notiferry.yaml:ro" \
-  ghcr.io/omerktn/notiferry:latest --config /notiferry.yaml
+  notiferry:local --config /notiferry.yaml
 ```
 
 For a binary, run `notiferry --config notiferry.yaml`; edit the file and send
-`SIGHUP` to reload it. The token is environment-only.
+`SIGHUP` to reload targets. Changing the listen address or bot token requires a
+restart.
 
 ```sh
 curl -X POST localhost:8080/v1/notify -H 'content-type: application/json' -d '{"text":"hello"}'

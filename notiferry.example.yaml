@@ -1,4 +1,5 @@
 listen: :8080
+telegram_bot_token: "123456:replace-with-your-real-token"
 default_target: ops
 targets:
   ops:

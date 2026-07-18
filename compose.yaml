@@ -1,11 +1,11 @@
 services:
   notiferry:
     restart: unless-stopped
-    image: ghcr.io/omerktn/notiferry:latest
+    build: .
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:3333:8080"
     environment:
-      NOTIFERRY_TELEGRAM_BOT_TOKEN: "${NOTIFERRY_TELEGRAM_BOT_TOKEN:?set the bot token in .env or the environment}"
+      NOTIFERRY_TELEGRAM_BOT_TOKEN: "${NOTIFERRY_TELEGRAM_BOT_TOKEN:-}"
     volumes:
       - ./notiferry.yaml:/notiferry.yaml:ro
     command: ["--config", "/notiferry.yaml"]

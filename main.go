@@ -26,9 +26,9 @@ func main() {
 		logger.Error("configuration failed", "error", err)
 		os.Exit(1)
 	}
-	token := os.Getenv("NOTIFERRY_TELEGRAM_BOT_TOKEN")
+	token := telegramBotToken(c)
 	if token == "" {
-		logger.Error("NOTIFERRY_TELEGRAM_BOT_TOKEN is required")
+		logger.Error("telegram bot token is required in telegram_bot_token or NOTIFERRY_TELEGRAM_BOT_TOKEN")
 		os.Exit(1)
 	}
 	client := &TelegramClient{
@@ -62,6 +62,8 @@ func main() {
 				logger.Error("configuration reload failed", "error", e)
 			} else if next.Listen != app.config.Load().Listen {
 				logger.Error("configuration reload rejected", "reason", "listen address changed; restart required")
+			} else if telegramBotToken(next) != token {
+				logger.Error("configuration reload rejected", "reason", "telegram bot token changed; restart required")
 			} else {
 				app.Reload(next)
 				logger.Info("configuration reloaded")
@@ -80,6 +82,13 @@ func main() {
 	shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = srv.Shutdown(shutdown)
+}
+
+func telegramBotToken(c Config) string {
+	if token := os.Getenv("NOTIFERRY_TELEGRAM_BOT_TOKEN"); token != "" {
+		return token
+	}
+	return c.TelegramBotToken
 }
 
 func healthcheck(args []string) {
