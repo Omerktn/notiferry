@@ -8,9 +8,17 @@ Create a bot with [BotFather](https://t.me/BotFather), add it to the destination
 
 ### Docker Compose
 
-The included `compose.yaml` expects `notiferry.yaml` and a local `.env` beside
-it. Create `notiferry.yaml` with your chat IDs (this is a complete, valid
-example):
+Run these commands from the cloned repository root, which is the directory that
+contains `compose.yaml`. Copy the two example files, then edit the copies:
+
+```sh
+cp notiferry.example.yaml notiferry.yaml
+cp .env.example .env
+${EDITOR:-vi} notiferry.yaml
+${EDITOR:-vi} .env
+```
+
+Set the target chat IDs in `notiferry.yaml`:
 
 ```yaml
 listen: :8080
@@ -23,16 +31,12 @@ targets:
     chat_id: "123456789"
 ```
 
-Copy the environment template, then edit `.env` and replace the placeholder
-value. The bot token lives in `.env` as `NOTIFERRY_TELEGRAM_BOT_TOKEN`:
+Set the bot token in `.env` as `NOTIFERRY_TELEGRAM_BOT_TOKEN`. Docker Compose
+reads `.env` automatically and mounts the host-side `./notiferry.yaml` inside
+the container as `/notiferry.yaml`. Always edit the host-side file beside
+`compose.yaml`, not the path inside the container.
 
-```sh
-cp .env.example .env
-```
-
-Docker Compose automatically reads `.env` and the existing `environment`
-mapping in `compose.yaml` passes that value to Notiferry. From the same
-directory, start and inspect it:
+From that same directory, start and inspect the service:
 
 ```sh
 docker compose up -d
@@ -49,9 +53,7 @@ curl -X POST localhost:8080/v1/notify \
 docker compose down
 ```
 
-Do not commit `.env` or put a real token in source control. The service has no
-authentication; keep port 8080 bound to trusted host-local access as shown in
-`compose.yaml` (`127.0.0.1:8080:8080`) and do not expose it more broadly.
+The service has no authentication; keep port 8080 bound to trusted host-local access as shown in `compose.yaml` (`127.0.0.1:8080:8080`) and do not expose it more broadly.
 
 For direct Docker, export the token and run:
 

@@ -1,0 +1,8 @@
+listen: :8080
+default_target: ops
+targets:
+  ops:
+    chat_id: "-1001234567890"
+    topic_id: 42
+  phone:
+    chat_id: "123456789"
