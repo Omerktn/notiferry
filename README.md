@@ -8,9 +8,9 @@ Create a bot with [BotFather](https://t.me/BotFather), add it to the destination
 
 ### Docker Compose
 
-Put the included `compose.yaml`, `notiferry.yaml`, and a local `.env` in the
-same directory. Create `notiferry.yaml` with your chat IDs (this is a complete,
-valid example):
+The included `compose.yaml` expects `notiferry.yaml` and a local `.env` beside
+it. Create `notiferry.yaml` with your chat IDs (this is a complete, valid
+example):
 
 ```yaml
 listen: :8080
@@ -23,10 +23,11 @@ targets:
     chat_id: "123456789"
 ```
 
-Create `.env` in that directory and put the bot token on this line:
+Copy the environment template, then edit `.env` and replace the placeholder
+value. The bot token lives in `.env` as `NOTIFERRY_TELEGRAM_BOT_TOKEN`:
 
-```dotenv
-NOTIFERRY_TELEGRAM_BOT_TOKEN=123456:replace-with-your-real-token
+```sh
+cp .env.example .env
 ```
 
 Docker Compose automatically reads `.env` and the existing `environment`
